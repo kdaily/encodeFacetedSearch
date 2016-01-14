@@ -19,13 +19,13 @@ shinyUI(fixedPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(width=4,
-      uiOutput("Dynamic")
+                 textOutput("Foo"),
+                 uiOutput("Dynamic")
     ),
 
     # Show a plot of the generated distribution
     mainPanel(
-      DT::dataTableOutput("Main"),
-      textOutput('tableInfo')
-    )
+      DT::dataTableOutput("Main")
+      )
   )
 ))
