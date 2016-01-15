@@ -30,34 +30,27 @@ shinyServer(function(input, output, session) {
     DT::datatable(df)
   )
   
-  values <- reactiveValues()
-
-  observe({
-    lapply(names(dfs),
-           function(x) {
-             cat(sprintf("Updating values table_%s\n", x), file=stderr())
-             tmp <- dfs[[x]]
-             colnames(tmp) <- NULL
-             values[[x]] <- tmp
-           })  
-  })
+  v <- reactiveValues()
   
   observe({
-    lapply(names(values),
-           function(x) {
-             cat(sprintf("Updating output table_%s\n", x), file=stderr())
-             output[[sprintf('table_%s', x)]] <- mktbl(values[[x]])
-             return(x)
-             })
-    })
-  
-  output$Dynamic <- renderUI({
     lapply(names(dfs), 
            function(x) {
-             dataTableOutput(sprintf("table_%s", x))
+             tmp <- dfs[[x]]
+             colnames(tmp) <- NULL
+             v[[x]] <- mktbl(tmp)
            })
   })
-
-  output$Foo <- renderText({"Foo"})  
+  
+  observe({
+    lapply(names(v), 
+           function(x) {
+             output[[x]] <- v[[x]]
+           })
+  })
+  
+  output$Dynamic <- renderUI({
+    lapply(names(v), function(x) {tagList(h4(x), DT::dataTableOutput(x))})
+  })
+  
 
 })

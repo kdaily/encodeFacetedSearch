@@ -19,7 +19,6 @@ shinyUI(fixedPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(width=4,
-                 textOutput("Foo"),
                  uiOutput("Dynamic")
     ),
 
