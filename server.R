@@ -30,16 +30,9 @@ shinyServer(function(input, output, session) {
     tblInputs <- lapply(names(dfs),
                         function(x) input[[sprintf('%s_rows_selected', x)]])
     names(tblInputs) <- names(dfs)
-    df
-  })
-  
-  output$Main <- DT::renderDataTable({
-    tblInputs <- lapply(names(dfs),
-                  function(x) input[[sprintf('%s_rows_selected', x)]])
-    names(tblInputs) <- names(dfs)
-
-    df.filtered <- dfFiltered()
-
+    
+    df.filtered <- df
+    
     for (x in names(tblInputs)) {
       tblI <- tblInputs[[x]]
       
@@ -51,6 +44,12 @@ shinyServer(function(input, output, session) {
       }
     }
     
+    df.filtered
+    
+  })
+  
+  output$Main <- DT::renderDataTable({
+    df.filtered <- dfFiltered()
     DT::datatable(df.filtered)}
   )
   
