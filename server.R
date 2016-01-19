@@ -55,29 +55,20 @@ shinyServer(function(input, output, session) {
   
   v <- reactiveValues()
   
-  tmp <- lapply(names(dfs), 
-                function(x) {
-                  v[[x]] <- NULL
-                })
-  
   observe({
+    
+    dfs <- makeDFs(df)
+    
     lapply(names(dfs), 
            function(x) {
              tmp <- dfs[[x]]
              colnames(tmp) <- NULL
-             v[[x]] <- mktbl(tmp)
-           })
-  })
-  
-  observe({
-    lapply(names(v), 
-           function(x) {
-             output[[x]] <- v[[x]]
+             output[[x]] <- mktbl(tmp)
            })
   })
   
   output$Dynamic <- renderUI({
-    lapply(names(v), function(x) {tagList(h4(x), DT::dataTableOutput(x))})
+    lapply(names(dfs), function(x) {tagList(h4(x), DT::dataTableOutput(x))})
   })
   
 })
