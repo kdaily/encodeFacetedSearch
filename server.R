@@ -26,11 +26,40 @@ library(shiny)
 
 shinyServer(function(input, output, session) {
   
-  output$Main <- DT::renderDataTable(
-    DT::datatable(df)
+  dfFiltered <- reactive({
+    tblInputs <- lapply(names(dfs),
+                        function(x) input[[sprintf('%s_rows_selected', x)]])
+    names(tblInputs) <- names(dfs)
+    df
+  })
+  
+  output$Main <- DT::renderDataTable({
+    tblInputs <- lapply(names(dfs),
+                  function(x) input[[sprintf('%s_rows_selected', x)]])
+    names(tblInputs) <- names(dfs)
+
+    df.filtered <- dfFiltered()
+
+    for (x in names(tblInputs)) {
+      tblI <- tblInputs[[x]]
+      
+      cats <- dfs[[x]][, 1]
+      if (!is.null(tblI)) {
+        cats <- dfs[[x]][tblI, 1]
+        
+        df.filtered <- df.filtered[df.filtered[, x] %in% cats, ]
+      }
+    }
+    
+    DT::datatable(df.filtered)}
   )
   
   v <- reactiveValues()
+  
+  tmp <- lapply(names(dfs), 
+                function(x) {
+                  v[[x]] <- NULL
+                })
   
   observe({
     lapply(names(dfs), 
@@ -52,5 +81,17 @@ shinyServer(function(input, output, session) {
     lapply(names(v), function(x) {tagList(h4(x), DT::dataTableOutput(x))})
   })
   
+  observeEvent(input$CellLineType_rows_selected, {
+    info = input$CellLineType_rows_selected
+    # do nothing if not clicked yet, or the clicked cell is not in the 1st column
+    if (is.null(info)) return()
+    updateTextInput(session, 'x2', value = info)
+  })
+  
+  output$clicked <- renderText({
+    foo <- input$CellLineType_rows_selected
+    # cat(names(foo))
+    dfs[['CellLineType']][foo, 1]
+    })
 
 })

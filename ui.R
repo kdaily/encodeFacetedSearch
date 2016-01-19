@@ -24,7 +24,8 @@ shinyUI(fixedPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      DT::dataTableOutput("Main")
-      )
+      DT::dataTableOutput("Main"),
+      textOutput("clicked")
+    )
   )
 ))
