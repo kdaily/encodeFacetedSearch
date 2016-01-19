@@ -10,7 +10,7 @@ library(shiny)
 shinyUI(fixedPage(
 
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("ENCODE-like Faceted Search"),
 
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "bar.css")
@@ -24,8 +24,7 @@ shinyUI(fixedPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      DT::dataTableOutput("Main"),
-      textOutput("clicked")
+      DT::dataTableOutput("Main")
     )
   )
 ))
