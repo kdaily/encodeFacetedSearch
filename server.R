@@ -81,17 +81,4 @@ shinyServer(function(input, output, session) {
     lapply(names(v), function(x) {tagList(h4(x), DT::dataTableOutput(x))})
   })
   
-  observeEvent(input$CellLineType_rows_selected, {
-    info = input$CellLineType_rows_selected
-    # do nothing if not clicked yet, or the clicked cell is not in the 1st column
-    if (is.null(info)) return()
-    updateTextInput(session, 'x2', value = info)
-  })
-  
-  output$clicked <- renderText({
-    foo <- input$CellLineType_rows_selected
-    # cat(names(foo))
-    dfs[['CellLineType']][foo, 1]
-    })
-
 })
