@@ -19,7 +19,7 @@ shinyUI(fixedPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(width=4,
-                 uiOutput("Dynamic")
+                 uiOutput("selectTables")
     ),
 
     # Show a plot of the generated distribution

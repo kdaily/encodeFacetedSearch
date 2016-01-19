@@ -26,21 +26,28 @@ library(shiny)
 
 shinyServer(function(input, output, session) {
   
+  # Filter data based on selected rows in input tables
   dfFiltered <- reactive({
+    
+    # Respond to these inputs - the individual tables' selected rows
     tblInputs <- lapply(names(dfs),
                         function(x) input[[sprintf('%s_rows_selected', x)]])
     names(tblInputs) <- names(dfs)
     
+    # Start off with the full dataset
     df.filtered <- df
     
+    # Filter on each table's selected rows
     for (x in names(tblInputs)) {
-      tblI <- tblInputs[[x]]
       
-      cats <- dfs[[x]][, 1]
-      if (!is.null(tblI)) {
-        cats <- dfs[[x]][tblI, 1]
+      selectedRows <- tblInputs[[x]]
+      
+      if (!is.null(selectedRows)) {
         
-        df.filtered <- df.filtered[df.filtered[, x] %in% cats, ]
+        # Get the values of the selected rows
+        rowValues <- dfs[[x]][selectedRows, 1]
+        
+        df.filtered <- df.filtered[df.filtered[, x] %in% rowValues, ]
       }
     }
     
@@ -48,15 +55,13 @@ shinyServer(function(input, output, session) {
     
   })
   
+  # The main data - filtered based on selected rows of input tables
   output$Main <- DT::renderDataTable({
     df.filtered <- dfFiltered()
     DT::datatable(df.filtered)}
   )
   
-  v <- reactiveValues()
-  
-
-  output$Dynamic <- renderUI({
+  output$selectTables <- renderUI({
     dfs <- makeDFs(df)
     
     lapply(names(dfs), 
