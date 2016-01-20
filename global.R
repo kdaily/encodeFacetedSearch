@@ -16,12 +16,8 @@ dfOrig <- tbl@values %>% select(Host_Species, Originating_Lab, Cell_Type,
                                 Reprogramming_Vector_Type, Reprogramming_Gene_Combination)
 
 colnames(dfOrig) <- str_replace_all(colnames(dfOrig), "_", "")
+tableNames <- colnames(dfOrig)
 
-baseDF <- dlply(melt(dfOrig, id.vars=NULL) %>% distinct, 
-                .(variable), 
-                function(x) {
-                  x %>% select(-variable)
-                })
 
 makeDFs <- function(df) {
   
@@ -29,20 +25,27 @@ makeDFs <- function(df) {
   
   df.melted <- melt(df, id.vars=NULL)
   
-  df.melted.count <- df.melted %>% 
+  df.melted %>% 
     count(variable, value) %>% 
     mutate(percent=round((n/totalFeats) * 100),
            Count=sprintf(txt, as.character(100 - percent), as.character(n))) %>% 
     arrange(desc(n)) %>% 
     select(variable, value, Count)
   
+}
+
+makeDFList <- function(df) {
+  df.melted.count <- makeDFs(df)
   dlply(df.melted.count, .(variable), 
         function(x) {
           x %>% select(-variable)
         })
 }
 
-# dfs <- makeDFs(dfOrig)
+baseDF <- makeDFs(dfOrig) %>% select(-Count) %>% dlply(.(variable), 
+                                                       function(x) {
+                                                         x %>% select(-variable)
+                                                       })
 
 # df1 <- data.frame(Name=c('A', 'B', 'C', 'D', 'E'), 
 #                  Count=unlist(lapply(c(1, 25, 50, 75, 100),

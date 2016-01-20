@@ -19,23 +19,25 @@ mktbl <- function(x) {
                       style = 'default',
                       class='compact',
                       rownames=FALSE,
+                      server=FALSE,
                       escape=1)
 }
 
 library(shiny)
 
 shinyServer(function(input, output, session) {
-  
+
   # Filter data based on selected rows in input tables
   dfFiltered <- reactive({
     
     # Respond to these inputs - the individual tables' selected rows
-    tblInputs <- lapply(names(dfs),
+    tblInputs <- lapply(tableNames,
                         function(x) input[[sprintf('%s_rows_selected', x)]])
-    names(tblInputs) <- names(dfs)
+    
+    names(tblInputs) <- tableNames
     
     # Start off with the full dataset
-    df.filtered <- df
+    df.filtered <- dfOrig
     
     # Filter on each table's selected rows
     for (x in names(tblInputs)) {
@@ -45,7 +47,7 @@ shinyServer(function(input, output, session) {
       if (!is.null(selectedRows)) {
         
         # Get the values of the selected rows
-        rowValues <- dfs[[x]][selectedRows, 1]
+        rowValues <- baseDF[[x]][selectedRows, "value"]
         
         df.filtered <- df.filtered[df.filtered[, x] %in% rowValues, ]
       }
@@ -55,23 +57,36 @@ shinyServer(function(input, output, session) {
     
   })
   
-  # The main data - filtered based on selected rows of input tables
-  output$Main <- DT::renderDataTable({
-    df.filtered <- dfFiltered()
-    DT::datatable(df.filtered)}
-  )
+  # # The main data - filtered based on selected rows of input tables
+  # output$Main <- DT::renderDataTable({
+  #   df.filtered <- isolate(dfFiltered())
+  #   
+  #   DT::datatable(df.filtered)}
+  # )
+  
+  output$Main <- renderText({"Foo"})
+  
+  dfs <- reactive({
+    # Respond to these inputs - the individual tables' selected rows
+    tblInputs <- lapply(tableNames,
+                        function(x) input[[sprintf('%s_rows_selected', x)]])
+    
+    df.filtered <- isolate(dfFiltered())
+    makeDFList(df.filtered)
+  })
   
   output$selectTables <- renderUI({
-    dfs <- makeDFs(df)
     
-    lapply(names(dfs), 
+    theDFs <- dfs()
+    
+    lapply(tableNames, 
            function(x) {
-             tmp <- dfs[[x]]
+             tmp <- theDFs[[x]]
              colnames(tmp) <- NULL
              output[[x]] <- mktbl(tmp)
            })
 
-    lapply(names(dfs), function(x) {tagList(h4(x), DT::dataTableOutput(x))})
+    lapply(tableNames, function(x) {tagList(h4(x), DT::dataTableOutput(x))})
   })
   
 })
